@@ -63,10 +63,14 @@
         font-weight: 500;
     }
 
+    body, html {
+        overflow-x: hidden;
+    }
 
     .secao-titulo {
-        width: 370px;
+        width: auto;
         margin-left: 35px;
+        margin-right: 20px;
         border-left: 5px solid var(--AU700);
     }
    
@@ -87,13 +91,13 @@
     }
    
     .carrossel-container {
-        width: 100%;
-        max-width: 340px;
-        overflow: hidden;
-        touch-action: pan-y;
-        cursor: grab;
-        padding: 0 20px;
-    }
+    width: 100%;
+    max-width: 360px;
+    overflow: hidden;
+    touch-action: pan-y;
+    cursor: grab;
+    padding: 0 0 0 20px;
+}
    
     .carrossel-container:active {
         cursor: grabbing;
