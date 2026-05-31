@@ -26,9 +26,10 @@
             <label for="entrega">Entrega <span class="obrigatorio">*</span></label>
             <select name="" id="seletor">
                 <option value="" selected disabled>Selecione a Forma de  Entrega</option>
-                <option value="">Padrão - 6 à 9 dias</option>
-                <option value="">Express - 3 à 5 dias</option>
+                <option value="padrao">Padrão - 6 à 9 dias</option>
+                <option value="express">Express - 3 à 5 dias</option>
             </select>
+            <p id="info-entrega" class="fontep" style="display:none;"></p>
         </div>
         <div class="tamanhodiv">
             <p class="fonteh">Forma de Pagamento</p>
@@ -53,7 +54,8 @@
             <label for="entrega">Cód. Segurança<span class="obrigatorio">*</span></label>
             <input type="number" name="" class="num_cc" id="cod_seg" placeholder="000">
         </form>
-        <a href="../CONFIRMACAO/TCC.html" class="b_confirmar">Confirmar</a>
+        <p id="msg-erro" class="msg-erro" style="display:none;"></p>
+        <button class="b_confirmar" id="btn-confirmar">Confirmar Pagamento</button>
         <a href="../CARRINHO/carrinho.html" class="voltar">Voltar para o Carrinho</a>
     </main>
     <script src="pagamento.js"></script>
