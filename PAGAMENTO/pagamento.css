@@ -137,4 +137,14 @@
         line-height: 140%;
         letter-spacing: 0.02em;
     }
+    .msg-erro {
+        width: 90%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background-color: var(--E50);
+        color: var(--E700);
+        font-size: 13px;
+        font-weight: 500;
+        border: 1px solid var(--E200);
+    }
 }
