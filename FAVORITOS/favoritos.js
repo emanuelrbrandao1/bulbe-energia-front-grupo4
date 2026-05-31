@@ -113,17 +113,28 @@ async function desfavoritar(produtoId) {
   }
 }
 
-function adicionarAoCarrinhoDeFavoritos(produtoId) {
-  let carrinho = JSON.parse(localStorage.getItem('carrinho') || '[]');
-  const itemExistente = carrinho.find(item => item.id === produtoId);
+async function adicionarAoCarrinhoDeFavoritos(produtoId) {
+  try {
+    const resposta = await fetch(`${API}/carrinho/itens`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ produtoId, quantidade: 1 }),
+    });
 
-  if (itemExistente) {
-    itemExistente.quantidade += 1;
-  } else {
-    carrinho.push({ id: produtoId, quantidade: 1 });
+    if (resposta.status === 401) {
+      window.location.href = '../LOGIN/login.html';
+      return;
+    }
+
+    if (!resposta.ok) throw new Error('Falha ao adicionar ao carrinho.');
+
+    alert('Produto adicionado ao carrinho!');
+  } catch (erro) {
+    console.error('Erro ao adicionar ao carrinho:', erro);
   }
-
-  localStorage.setItem('carrinho', JSON.stringify(carrinho));
 }
 
 document.addEventListener('DOMContentLoaded', function () {
