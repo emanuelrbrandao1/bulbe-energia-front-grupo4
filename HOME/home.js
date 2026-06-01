@@ -115,13 +115,31 @@ async function adicionarAoCarrinho(idProduto) {
 }
 
 // ===== CONTADOR DO CARRINHO =====
-function atualizarContadorCarrinho() {
+async function atualizarContadorCarrinho() {
     const badge = document.getElementById('carrinho-contador');
     if (!badge) return;
-    const carrinho = JSON.parse(localStorage.getItem('carrinho') || '[]');
-    const totalItens = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
-    badge.textContent = totalItens;
-    badge.style.display = totalItens > 0 ? 'flex' : 'none';
+
+    const token = getToken();
+    if (!token) {
+        badge.style.display = 'none';
+        return;
+    }
+
+    try {
+        const resposta = await fetch(`${API}/carrinho`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (!resposta.ok) {
+            badge.style.display = 'none';
+            return;
+        }
+        const dados = await resposta.json();
+        const totalItens = (dados.itens || []).reduce((sum, item) => sum + item.quantidade, 0);
+        badge.textContent = totalItens;
+        badge.style.display = totalItens > 0 ? 'flex' : 'none';
+    } catch (_) {
+        badge.style.display = 'none';
+    }
 }
 
 // ===== INICIALIZAÇÃO DA PÁGINA =====
