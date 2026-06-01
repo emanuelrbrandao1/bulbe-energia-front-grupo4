@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar - Bulbe Energia</title>
+    <link rel="stylesheet" href="../geral.css">
+    <link rel="stylesheet" href="login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="login-main">
+        <section class="login-card">
+            <img class="login-logo" src="../assets/images/logo_azul.png" alt="Bulbe Energia">
+
+            <div class="login-cabecalho">
+                <h1 class="login-titulo">Entrar</h1>
+                <p class="login-subtitulo">Acesse sua conta para continuar</p>
+            </div>
+
+            <form class="login-form" id="login-form" novalidate>
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="email" required>
+                </div>
+
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="••••••••" autocomplete="current-password" required>
+                </div>
+
+                <p id="msg-erro" class="msg-erro oculto" role="alert"></p>
+
+                <button type="submit" id="btn-entrar" class="btn-entrar">Entrar</button>
+            </form>
+
+            <p class="login-link-secundario">
+                Não tem uma conta? <a href="#" id="link-cadastro">Cadastre-se</a>
+            </p>
+        </section>
+    </main>
+
+    <script src="login.js"></script>
+</body>
+</html>
