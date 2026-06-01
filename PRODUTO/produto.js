@@ -168,12 +168,26 @@ async function adicionarAoCarrinhoProduto() {
   }
 }
 
+// ===== MENSAGEM DE ERRO NA TELA =====
+function mostrarErroProduto(msg) {
+  const titulo = document.querySelector('.produto-titulo');
+  const desc   = document.querySelector('.descricao-texto');
+  if (titulo) titulo.textContent = 'Ops!';
+  if (desc)   desc.innerHTML = `
+    <p style="color:#c0392b; margin-bottom:16px">${msg}</p>
+    <a href="../HOME/home.html" style="color:#2980b9">← Voltar para a Home</a>
+  `;
+  // esconde seções de preço, quantidade e botões para não confundir
+  ['.preco-linha', '.economia-info', '.controle-quantidade', '.btn-comprar']
+    .forEach(sel => { const el = document.querySelector(sel); if (el) el.style.display = 'none'; });
+}
+
 // ===== CARREGAR PRODUTO (API real) =====
 async function carregarProduto() {
   const idProduto = parseInt(new URLSearchParams(window.location.search).get('id'));
 
   if (!idProduto) {
-    window.location.href = '../HOME/home.html';
+    mostrarErroProduto('ID de produto inválido.');
     return;
   }
 
@@ -181,7 +195,8 @@ async function carregarProduto() {
     const resposta = await fetch(`${API}/produtos/${idProduto}`);
 
     if (!resposta.ok) {
-      window.location.href = '../HOME/home.html';
+      const dados = await resposta.json().catch(() => ({}));
+      mostrarErroProduto(dados.erro || 'Produto não encontrado.');
       return;
     }
 
@@ -229,7 +244,7 @@ async function carregarProduto() {
 
   } catch (error) {
     console.error('Erro ao carregar produto:', error);
-    window.location.href = '../HOME/home.html';
+    mostrarErroProduto('Erro ao carregar o produto. Verifique sua conexão ou tente novamente.');
   }
 }
 
