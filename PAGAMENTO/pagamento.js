@@ -46,6 +46,34 @@ async function selecionarEntrega(tipo) {
     return dados; 
 }
  
+async function criarPedido(formaEntrega, metodoPagamento) {
+    const enderecoEntrega = JSON.parse(localStorage.getItem('enderecoEntrega') || 'null');
+    if (!enderecoEntrega) {
+        throw new Error('Endereço não encontrado. Volte e preencha o endereço.');
+    }
+
+    const resposta = await fetch(`${BASE_URL}/pedidos`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getToken(),
+        },
+        body: JSON.stringify({ enderecoEntrega, formaEntrega, metodoPagamento }),
+    });
+
+    if (resposta.status === 401) {
+        window.location.href = '../LOGIN/login.html';
+        return null;
+    }
+
+    const dados = await resposta.json();
+    if (!resposta.ok) {
+        throw new Error(dados.erro || 'Erro ao criar pedido.');
+    }
+
+    return dados.pedidoId;
+}
+
 async function processarPagamento(pedidoId, corpo) {
     const resposta = await fetch(`${BASE_URL}/bulbe/pedidos/${pedidoId}/pagamento`, {
         method: 'POST',
@@ -141,17 +169,13 @@ document.addEventListener('DOMContentLoaded', function () {
             corpo = { metodo, nome_titular, num_cartao, validade, cod_seguranca };
         }
  
-        
-        const pedidoId = localStorage.getItem('pedidoId');
-        if (!pedidoId) {
-            mostrarErro('Pedido não encontrado. Volte ao carrinho e tente novamente.');
-            return;
-        }
- 
         btnConfirmar.textContent = 'Processando...';
         btnConfirmar.disabled = true;
- 
+
         try {
+            const pedidoId = await criarPedido(entrega, metodo);
+            if (!pedidoId) return;
+
             const pagamento = await processarPagamento(pedidoId, corpo);
             if (!pagamento) return;
             window.location.href = `../CONFIRMACAO/TCC.html?pedidoId=${pagamento.idPedido}`;
