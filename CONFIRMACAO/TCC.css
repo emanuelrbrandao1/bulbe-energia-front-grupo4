@@ -261,3 +261,70 @@ footer {
 .avaliacoes{
     color: var(--C500);
 }
+
+/* ===== RESUMO DO PEDIDO (preenchido via API apos POST /pedidos) ===== */
+@media (max-width: 440px) {
+    .resumo-pedido {
+        width: 350px;
+        background-color: var(--branco);
+        border: 1px solid var(--C100);
+        border-radius: 8px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .resumo-pedido-titulo {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--C900);
+        margin: 0;
+    }
+
+    .resumo-itens {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .resumo-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: var(--C700);
+    }
+
+    .resumo-item-nome small {
+        color: var(--C500);
+        font-weight: 400;
+    }
+
+    .resumo-item-valor {
+        font-weight: 600;
+        color: var(--C900);
+    }
+
+    .resumo-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 12px;
+        border-top: 1px solid var(--C100);
+        font-size: 16px;
+        color: var(--AU700);
+    }
+
+    .resumo-status {
+        font-size: 13px;
+        color: var(--C600);
+    }
+
+    .mensagem-erro {
+        color: var(--VF700, #c0392b) !important;
+        font-weight: 600;
+    }
+}
