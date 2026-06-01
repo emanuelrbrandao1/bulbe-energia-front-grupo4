@@ -141,4 +141,11 @@
   #cep-info img{
     width: 20px;
   }
+
+  #error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    margin: 5px 0 10px 0;
+    font-family: 'Poppins', sans-serif;
+}
 }
