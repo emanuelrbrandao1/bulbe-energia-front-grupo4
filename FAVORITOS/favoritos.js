@@ -37,7 +37,7 @@ function renderizarFavoritos(favoritos) {
     container.innerHTML += `
       <article class="caixaproduto" data-id="${item.produtoId}">
         <div class="produto-imagem">
-          <img src="${item.imagem}" alt="${item.nome}" onerror="this.src='../assets/images/bulbe-ex-produto.png'">
+          <img src="../${item.imagem}" alt="${item.nome}" onerror="this.src='../assets/images/bulbe-ex-produto.png'">
         </div>
         <div class="produto-info">
           <div class="info-header">
