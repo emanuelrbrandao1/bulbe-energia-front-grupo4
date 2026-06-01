@@ -7,7 +7,7 @@
 const API_BASE = 'http://localhost:3000/api/v1';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const token = localStorage.getItem('bulbe_token');
+  const token = localStorage.getItem('token');
   if (!token) {
     window.location.href = '../LOGIN/login.html';
     return;
