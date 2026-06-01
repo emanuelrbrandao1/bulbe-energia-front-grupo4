@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulbe Energia</title>
+    <meta http-equiv="refresh" content="0; url=./LOGIN/login.html">
+    <link rel="stylesheet" href="geral.css">
+    <style>
+        @media (max-width: 440px) {
+            body {
+                background-color: var(--gelo, #F8F8FF);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                margin: 0;
+                font-family: 'Poppins', sans-serif;
+            }
+            .carregando {
+                text-align: center;
+                color: var(--C600, #536679);
+            }
+            .carregando img {
+                width: 120px;
+                margin-bottom: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="carregando">
+        <img src="assets/images/logo_azul.png" alt="Bulbe Energia">
+        <p>Carregando...</p>
+    </div>
+    <script>
+        // Fallback caso meta refresh nao dispare (alguns browsers/extensions)
+        window.location.replace('./LOGIN/login.html');
+    </script>
+</body>
+</html>
