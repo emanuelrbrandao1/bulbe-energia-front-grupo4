@@ -126,36 +126,50 @@ document.addEventListener('DOMContentLoaded', function () {
         }
  
         const metodosComCartao = ['credito', 'debito'];
-        let corpo = { metodo };
- 
+        let corpoPagamento = { metodo };
+
         if (metodosComCartao.includes(metodo)) {
             const nome_titular  = document.getElementById('nome_cartao').value.trim();
             const num_cartao    = document.getElementById('num_cc').value.trim();
             const validade      = document.getElementById('validade').value.trim();
             const cod_seguranca = document.getElementById('cod_seg').value.trim();
- 
+
             if (!nome_titular || !num_cartao || !validade || !cod_seguranca) {
                 mostrarErro('Preencha todos os dados do cartão.');
                 return;
             }
-            corpo = { metodo, nome_titular, num_cartao, validade, cod_seguranca };
+            corpoPagamento = { metodo, nome_titular, num_cartao, validade, cod_seguranca };
         }
- 
-        
-        const pedidoId = localStorage.getItem('pedidoId');
-        if (!pedidoId) {
-            mostrarErro('Pedido não encontrado. Volte ao carrinho e tente novamente.');
-            return;
-        }
- 
+
         btnConfirmar.textContent = 'Processando...';
         btnConfirmar.disabled = true;
- 
+
         try {
-            const pagamento = await processarPagamento(pedidoId, corpo);
+            const enderecoEntrega = JSON.parse(localStorage.getItem('enderecoEntrega') || '{}');
+            const respostaPedido = await fetch(`${BASE_URL}/pedidos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getToken(),
+                },
+                body: JSON.stringify({ enderecoEntrega, formaEntrega: entrega, metodoPagamento: metodo }),
+            });
+
+            if (respostaPedido.status === 401) {
+                window.location.href = '../LOGIN/login.html';
+                return;
+            }
+
+            const pedido = await respostaPedido.json();
+            if (!respostaPedido.ok) throw new Error(pedido.erro || 'Erro ao criar pedido.');
+
+            const pedidoId = pedido.pedidoId;
+            localStorage.setItem('pedidoId', pedidoId);
+
+            const pagamento = await processarPagamento(pedidoId, corpoPagamento);
             if (!pagamento) return;
-            window.location.href = `../CONFIRMACAO/TCC.html?pedidoId=${pagamento.idPedido}`;
- 
+            window.location.href = `../CONFIRMACAO/TCC.html?pedidoId=${pedidoId}`;
+
         } catch (erro) {
             mostrarErro(erro.message);
             btnConfirmar.textContent = 'Confirmar Pagamento';
