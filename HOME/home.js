@@ -1,51 +1,62 @@
+// ===== CONFIGURAÇÃO DA API =====
+const API = 'http://localhost:3000/api/v1';
+
 // ===== CONTROLE DOS CARROSSÉIS =====
 let indices = [0, 0, 0, 0, 0];
 const produtoWidth = 176; // 160px + 16px de gap
 
-// Variáveis para controle do toque
 let startX = 0;
 let currentX = 0;
 let isDragging = false;
 
-// ===== RENDERIZAR PRODUTOS NOS CARROSSÉIS =====
+// ===== UTILITÁRIOS =====
+function getToken() {
+    return localStorage.getItem('token');
+}
 
-// Função que cria o HTML de um card de produto
+function formatarPreco(valor) {
+    return `R$ ${Number(valor).toFixed(2).replace('.', ',')}`;
+}
+
+function calcularPrecoComDesconto(preco, desconto) {
+    if (!desconto || desconto <= 0) return preco;
+    return preco * (1 - desconto / 100);
+}
+
+function mostrarErroCarrossel(trackId, mensagem) {
+    const track = document.getElementById(trackId);
+    if (track) {
+        track.innerHTML = `<p style="padding: 20px; color: #888;">${mensagem}</p>`;
+    }
+}
+
+// ===== RENDERIZAR PRODUTOS NOS CARROSSÉIS =====
 function criarCardProduto(produto) {
-    // Calcula preço com desconto
     const precoFinal = calcularPrecoComDesconto(produto.preco, produto.desconto);
     const precoFormatado = formatarPreco(precoFinal);
-    
-    // Define se mostra preço antigo
-    const precoAntigoHTML = produto.desconto > 0 
+    const precoAntigoHTML = produto.desconto > 0
         ? `<span class="preco-antigo">${formatarPreco(produto.preco)}</span>`
         : '';
-    
-    // Cria estrelas (baseado na avaliação)
     const estrelasCompletas = Math.floor(produto.avaliacao);
     const estrelas = '★'.repeat(estrelasCompletas) + '☆'.repeat(5 - estrelasCompletas);
-    
-    // Retorna o HTML do card
+    const totalAvaliacoes = produto.total_avaliacoes ?? produto.totalAvaliacoes ?? 0;
+
     return `
         <a href="../PRODUTO/produto.html?id=${produto.id}" class="produto-card">
-            
             <div class="produto-imagem">
                 <img src="../${produto.imagem}" alt="${produto.nome}" onerror="this.src='../assets/images/placeholder.png'">
             </div>
-            
             <div class="produto-info">
                 <h3 class="produto-nome">${produto.nome}</h3>
-                
                 <div class="produto-preco-wrapper">
                     <span class="preco-atual">${precoFormatado}</span>
                     ${precoAntigoHTML}
                 </div>
-                
                 <div class="produto-avaliacao">
                     <span class="estrelas">${estrelas}</span>
-                    <span class="avaliacoes">(${produto.totalAvaliacoes})</span>
+                    <span class="avaliacoes">(${totalAvaliacoes})</span>
                 </div>
             </div>
-            
             <button class="btn-adicionar" onclick="event.preventDefault(); adicionarAoCarrinho(${produto.id})" aria-label="Adicionar ao carrinho">
                 <span class="btn-icon">+</span>
                 <span class="btn-text">Adicionar</span>
@@ -54,146 +65,114 @@ function criarCardProduto(produto) {
     `;
 }
 
-// Função para preencher um carrossel
 function preencherCarrossel(trackId, produtos) {
     const track = document.getElementById(trackId);
-    
     if (!track) {
         console.error(`Carrossel ${trackId} não encontrado!`);
         return;
     }
-    
-    // Limpa conteúdo anterior
     track.innerHTML = '';
-    
-    // Adiciona cada produto
     produtos.forEach(produto => {
         track.innerHTML += criarCardProduto(produto);
     });
 }
 
-// ===== FUNÇÃO PARA ADICIONAR AO CARRINHO =====
-function adicionarAoCarrinho(idProduto) {
-    const produto = buscarProdutoPorId(idProduto);
-    
-    if (!produto) {
-        alert('Produto não encontrado!');
+// ===== FETCH DA API =====
+async function fetchPorCategoria(categoria) {
+    const resposta = await fetch(`${API}/produtos?categoria=${categoria}`);
+    if (!resposta.ok) throw new Error(`Falha ao buscar ${categoria}.`);
+    return resposta.json();
+}
+
+// ===== ADICIONAR AO CARRINHO =====
+async function adicionarAoCarrinho(idProduto) {
+    const token = getToken();
+    if (!token) {
+        window.location.href = '../LOGIN/login.html';
         return;
     }
-    
-    // Busca carrinho atual do localStorage
-    let carrinho = JSON.parse(localStorage.getItem('carrinho') || '[]');
-    
-    // Verifica se produto já está no carrinho
-    const itemExistente = carrinho.find(item => item.id === idProduto);
-    
-    if (itemExistente) {
-        // Incrementa quantidade
-        itemExistente.quantidade += 1;
-        alert(`${produto.nome} - Quantidade atualizada no carrinho!`);
-    } else {
-        // Adiciona novo item
-        carrinho.push({
-            id: idProduto,
-            quantidade: 1
-        });
-        alert(`${produto.nome} adicionado ao carrinho!`);
+
+    const resposta = await fetch(`${API}/carrinho/itens`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ produtoId: idProduto, quantidade: 1 }),
+    });
+
+    if (resposta.status === 401) {
+        window.location.href = '../LOGIN/login.html';
+        return;
     }
-    
-    // Salva no localStorage
-    localStorage.setItem('carrinho', JSON.stringify(carrinho));
-    
-    // Atualiza contador do carrinho (se tiver)
+
+    if (!resposta.ok) {
+        alert('Erro ao adicionar ao carrinho. Tente novamente.');
+        return;
+    }
+
     atualizarContadorCarrinho();
 }
 
-// Atualiza contador do carrinho no footer/header
+// ===== CONTADOR DO CARRINHO =====
 function atualizarContadorCarrinho() {
+    const badge = document.getElementById('carrinho-contador');
+    if (!badge) return;
     const carrinho = JSON.parse(localStorage.getItem('carrinho') || '[]');
     const totalItens = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
-    
-    // Se tiver badge de contador, atualiza
-    const badge = document.getElementById('carrinho-contador');
-    if (badge) {
-        badge.textContent = totalItens;
-        badge.style.display = totalItens > 0 ? 'flex' : 'none';
-    }
+    badge.textContent = totalItens;
+    badge.style.display = totalItens > 0 ? 'flex' : 'none';
 }
 
 // ===== INICIALIZAÇÃO DA PÁGINA =====
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Carregando produtos...');
-    console.log('Total de produtos:', PRODUTOS_DB.length);
-    
-    // CARROSSEL 1: Lâmpadas Inteligentes
-    const lampadas = buscarPorCategoriaHome('lampadas');
-    console.log('Lâmpadas:', lampadas.length);
-    preencherCarrossel('carrosselTrack1', lampadas);
-    
-    // CARROSSEL 2: Luminárias Inteligentes
-    const luminarias = buscarPorCategoriaHome('luminarias');
-    console.log('Luminárias:', luminarias.length);
-    preencherCarrossel('carrosselTrack2', luminarias);
-    
-    // CARROSSEL 3: Fitas LED
-    const fitas = buscarPorCategoriaHome('fitas');
-    console.log('Fitas LED:', fitas.length);
-    preencherCarrossel('carrosselTrack3', fitas);
-    
-    // CARROSSEL 4: Acessórios de Controle
-    const acessorios = buscarPorCategoriaHome('acessorios');
-    console.log('Acessórios:', acessorios.length);
-    preencherCarrossel('carrosselTrack4', acessorios);
-    
-    // CARROSSEL 5: Assistentes Virtuais
-    const assistentes = buscarPorCategoriaHome('assistentes');
-    console.log('Assistentes:', assistentes.length);
-    preencherCarrossel('carrosselTrack5', assistentes);
-    
-    // Inicializa controle de arrastar nos carrosséis
-    inicializarCarrossel('carrosselTrack1', 0);
-    inicializarCarrossel('carrosselTrack2', 1);
-    inicializarCarrossel('carrosselTrack3', 2);
-    inicializarCarrossel('carrosselTrack4', 3);
-    inicializarCarrossel('carrosselTrack5', 4);    
-    
-    // Atualiza contador do carrinho
+document.addEventListener('DOMContentLoaded', async function () {
+    const categorias = [
+        { trackId: 'carrosselTrack1', categoria: 'lampadas',   erro: 'Não foi possível carregar as lâmpadas.' },
+        { trackId: 'carrosselTrack2', categoria: 'luminarias', erro: 'Não foi possível carregar as luminárias.' },
+        { trackId: 'carrosselTrack3', categoria: 'fitas',      erro: 'Não foi possível carregar as fitas LED.' },
+        { trackId: 'carrosselTrack4', categoria: 'acessorios', erro: 'Não foi possível carregar os acessórios.' },
+        { trackId: 'carrosselTrack5', categoria: 'assistentes',erro: 'Não foi possível carregar os assistentes.' },
+    ];
+
+    for (const { trackId, categoria, erro } of categorias) {
+        try {
+            const produtos = await fetchPorCategoria(categoria);
+            preencherCarrossel(trackId, produtos);
+        } catch {
+            mostrarErroCarrossel(trackId, erro);
+        }
+    }
+
+    categorias.forEach(({ trackId }, i) => inicializarCarrossel(trackId, i));
+
     atualizarContadorCarrinho();
-    
-    console.log('✅ Produtos carregados com sucesso!');
 });
 
 // ===== CONTROLE DE ARRASTAR OS CARROSSÉIS =====
-
 function inicializarCarrossel(trackId, carrosselIndex) {
     const track = document.getElementById(trackId);
     const container = track.parentElement;
-    
+
     container.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
         isDragging = true;
         track.style.transition = 'none';
     });
-    
+
     container.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-        
         currentX = e.touches[0].clientX;
         const diff = currentX - startX;
         const currentTranslate = -indices[carrosselIndex] * produtoWidth;
-        
         track.style.transform = `translateX(${currentTranslate + diff}px)`;
     });
-    
+
     container.addEventListener('touchend', () => {
         if (!isDragging) return;
         isDragging = false;
-        
         const diff = currentX - startX;
         const threshold = 50;
-        
         track.style.transition = 'transform 0.3s ease';
-        
         if (diff > threshold) {
             moverCarrossel(-1, trackId, carrosselIndex);
         } else if (diff < -threshold) {
@@ -208,36 +187,11 @@ function moverCarrossel(direcao, trackId, carrosselIndex) {
     const track = document.getElementById(trackId);
     const totalProdutos = track.children.length;
     const maxIndex = totalProdutos - 2;
-    
+
     indices[carrosselIndex] += direcao;
 
     if (indices[carrosselIndex] < 0) indices[carrosselIndex] = 0;
     if (indices[carrosselIndex] > maxIndex) indices[carrosselIndex] = maxIndex;
 
     track.style.transform = `translateX(-${indices[carrosselIndex] * produtoWidth}px)`;
-}
-
-// ===== FUNÇÕES DE CARRINHO E FAVORITOS NA HOME =====
-
-function adicionarAoCarrinho(idProduto) {
-    const produto = buscarProdutoPorId(idProduto);
-    
-    if (!produto) {
-        return;
-    }
-    
-    let carrinho = JSON.parse(localStorage.getItem('carrinho') || '[]');
-    const itemExistente = carrinho.find(item => item.id === idProduto);
-    
-    if (itemExistente) {
-        itemExistente.quantidade += 1;
-    } else {
-        carrinho.push({
-            id: idProduto,
-            quantidade: 1
-        });
-    }
-    
-    localStorage.setItem('carrinho', JSON.stringify(carrinho));
-    atualizarContadorCarrinho();
 }
