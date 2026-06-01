@@ -214,9 +214,9 @@ async function carregarProduto() {
     slides.innerHTML = '';
 
     if (produto.imagemDetalhes) {
-      slides.innerHTML = `<img src="${produto.imagemDetalhes}" class="ativo">`;
+      slides.innerHTML = `<img src="../${produto.imagemDetalhes}" class="ativo">`;
     } else {
-      slides.innerHTML = `<img src="${produto.imagem}" class="ativo">`;
+      slides.innerHTML = `<img src="../${produto.imagem}" class="ativo">`;
     }
 
     imagens = document.querySelectorAll('.slides img');

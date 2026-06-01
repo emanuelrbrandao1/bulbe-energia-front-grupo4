@@ -56,7 +56,7 @@ function renderizarCarrinho(dados) {
         // A API retorna 'preco' (unitário); precoTotal calculado no cliente
         const precoUnitario = item.precoUnitario ?? item.preco ?? 0;
         const precoTotal = item.precoTotal ?? (precoUnitario * item.quantidade);
-        const imagemSrc = item.imagem || '../assets/images/img-produto-carrinho.png';
+        const imagemSrc = item.imagem ? `../${item.imagem}` : '../assets/images/img-produto-carrinho.png';
 
         container.innerHTML += `
             <article class="caixaproduto" data-id="${item.produtoId}">
