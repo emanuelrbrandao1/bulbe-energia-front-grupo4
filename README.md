@@ -28,7 +28,10 @@ https://docs.google.com/document/d/1Fmg5Ln2DAluoDZpmRASaIXDqpqLC7WLg0mWnCKVSKyE/
 Apresentação:
 https://www.canva.com/design/DAG2bZnejdI/0p1UnJkcdNMPg1tQbxC2lw/edit?utm_content=DAG2bZnejdI&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
-Link do site:
+Link do site (atualizado — novo repo com as integrações da Sprint 4):
+https://emanuelrbrandao1.github.io/bulbe-energia-front-grupo4/HOME/home.html
+
+Link antigo (Sprint 1-3, sem integração com a API):
 https://ibmec-tech-2-periodo-2025-2.github.io/Projeto-BulbeShop-Grupo4/HOME/home.html
 
 
