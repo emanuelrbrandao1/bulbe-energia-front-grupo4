@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ── Chamadas à API ────────────────────────────────────────────────────────────
 
 async function buscarPedido(token, pedidoId) {
-  const resposta = await fetch(`${API_BASE}/bulbe/pedidos/${pedidoId}/rastreamento`, {
+  const resposta = await fetch(`${API_BASE}/pedidos/${pedidoId}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
 
@@ -65,21 +65,32 @@ async function carregarRecomendacoes(token, pedidoId) {
 
 function renderizarResumoPedido(pedido) {
   const titulo = document.querySelector('.titulo-sucesso');
-  if (titulo) titulo.textContent = `Pedido #${pedido.id} Confirmado!`;
+  if (titulo) titulo.textContent = `Pedido #${pedido.pedidoId} Confirmado!`;
 
   const secao = document.querySelector('.secao-confirmacao');
   if (!secao) return;
 
-  const valorTotalFormatado = `R$ ${Number(pedido.valor_total).toFixed(2).replace('.', ',')}`;
+  const valorTotalFormatado = `R$ ${Number(pedido.valorTotal).toFixed(2).replace('.', ',')}`;
+
+  const itens = pedido.itens || [];
+  const linhasItens = itens.map((item) => {
+    const subtotal = (item.precoUnitario * item.quantidade).toFixed(2).replace('.', ',');
+    return `
+      <li class="resumo-item">
+        <span class="resumo-item-nome">${escaparHtml(item.nome)} <small>x ${item.quantidade}</small></span>
+        <span class="resumo-item-valor">R$ ${subtotal}</span>
+      </li>`;
+  }).join('');
 
   const resumo = document.createElement('div');
   resumo.className = 'resumo-pedido';
   resumo.innerHTML = `
     <h3 class="resumo-pedido-titulo">Resumo do pedido</h3>
+    ${itens.length ? `<ul class="resumo-itens">${linhasItens}</ul>` : ''}
     <div class="resumo-total"><strong>Total</strong><span>${valorTotalFormatado}</span></div>
     <div class="resumo-status">Status: <strong>${escaparHtml(pedido.status)}</strong></div>
-    ${pedido.forma_entrega    ? `<div class="resumo-entrega">Entrega: <strong>${escaparHtml(pedido.forma_entrega)}</strong></div>`       : ''}
-    ${pedido.metodo_pagamento ? `<div class="resumo-pagamento">Pagamento: <strong>${escaparHtml(pedido.metodo_pagamento)}</strong></div>` : ''}
+    ${pedido.formaEntrega    ? `<div class="resumo-entrega">Entrega: <strong>${escaparHtml(pedido.formaEntrega)}</strong></div>`       : ''}
+    ${pedido.metodoPagamento ? `<div class="resumo-pagamento">Pagamento: <strong>${escaparHtml(pedido.metodoPagamento)}</strong></div>` : ''}
   `;
   secao.appendChild(resumo);
 }

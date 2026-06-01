@@ -123,8 +123,9 @@ async function verificarFavorito() {
       return;
     }
 
-    const favoritos = await resposta.json();
-    const estaFavorito = favoritos.some(f => f.produtoId === idProduto || f.id === idProduto);
+    const dados = await resposta.json();
+    const lista = dados.favoritos || [];
+    const estaFavorito = lista.some(f => f.produtoId === idProduto);
     const img = document.querySelector('.coracao');
 
     img.src = estaFavorito
