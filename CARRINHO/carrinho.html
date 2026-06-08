@@ -12,7 +12,14 @@
     <header>
         <a href="" class="menu"><img src="../assets/images/menu.png" alt=""></a>
         <a href="../HOME/home.html" class="logo"><img src="../assets/images/logo_azul.png" alt=""></a>
-        <a href="" class="user"><img src="../assets/images/usuario.png" alt=""></a>
+        <div class="user-dropdown">
+            <button type="button" class="user" id="btn-usuario" aria-haspopup="true" aria-expanded="false">
+                <img src="../assets/images/usuario.png" alt="Minha conta">
+            </button>
+            <div class="user-menu oculto" id="menu-usuario">
+                <button type="button" id="btn-sair-conta">Sair da conta</button>
+            </div>
+        </div>
     </header>
 
 
@@ -155,5 +162,6 @@
         </a>
     </footer>
     <script src="carrinho.js"></script>
+    <script src="../menu-usuario.js"></script>
 </body>
 </html>

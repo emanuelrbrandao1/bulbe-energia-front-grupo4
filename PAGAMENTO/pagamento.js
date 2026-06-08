@@ -22,28 +22,42 @@ function esconderErro() {
     el.style.display = 'none';
 }
  
+// Valores fixos de prazo/custo, espelhando o que a API deveria devolver em /bulbe/entrega.
+// Usados como fallback caso o endpoint responda com erro (ele está retornando 500 no momento).
+const TIPOS_ENTREGA_FALLBACK = {
+    padrao:  { prazoEstimado: '6-9 dias', custoEntrega: 10 },
+    express: { prazoEstimado: '3-5 dias', custoEntrega: 25 },
+};
+
 async function selecionarEntrega(tipo) {
-    const resposta = await fetch(`${BASE_URL}/bulbe/entrega`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + getToken()   
-        },
-        body: JSON.stringify({ tipo })
-    });
- 
-    if (resposta.status === 401) {
+    let resposta = null;
+    try {
+        resposta = await fetch(`${BASE_URL}/bulbe/entrega`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getToken()
+            },
+            body: JSON.stringify({ tipo })
+        });
+    } catch (_) {
+        // segue para o fallback abaixo
+    }
+
+    if (resposta && resposta.status === 401) {
         window.location.href = '../LOGIN/login.html';
         return null;
     }
- 
-    const dados = await resposta.json();
- 
-    if (!resposta.ok) {
-        throw new Error(dados.erro || 'Erro ao selecionar entrega');
+
+    if (resposta && resposta.ok) {
+        return resposta.json();
     }
- 
-    return dados; 
+
+    const fallback = TIPOS_ENTREGA_FALLBACK[tipo];
+    if (!fallback) {
+        throw new Error('Tipo de entrega inválido');
+    }
+    return { tipo, ...fallback };
 }
  
 async function criarPedido(formaEntrega, metodoPagamento) {
@@ -106,7 +120,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const infoEntrega    = document.getElementById('info-entrega');
     const selectPagamento = document.getElementById('pagamento');
     const formCredito    = document.querySelector('.credito');
+    const blocoPix       = document.querySelector('.pix');
     const btnConfirmar   = document.getElementById('btn-confirmar');
+    const btnCopiarPix   = document.getElementById('btn-copiar-pix');
+    const inputCodigoPix = document.getElementById('codigo_pix');
+    const msgCopiadoPix  = document.getElementById('msg-copiado-pix');
  
     selectEntrega.addEventListener('change', async function () {
         const tipo = selectEntrega.value;
@@ -130,12 +148,22 @@ document.addEventListener('DOMContentLoaded', function () {
  
     selectPagamento.addEventListener('change', function () {
         const valor = selectPagamento.value;
-        if (valor === 'credito' || valor === 'debito') {
-            formCredito.style.display = 'flex';
-        } else {
-            formCredito.style.display = 'none';
-        }
+
+        formCredito.style.display = (valor === 'credito' || valor === 'debito') ? 'flex' : 'none';
+        blocoPix.style.display = (valor === 'pix') ? 'flex' : 'none';
+        msgCopiadoPix.classList.add('oculto');
+
         esconderErro();
+    });
+
+    btnCopiarPix.addEventListener('click', async function () {
+        try {
+            await navigator.clipboard.writeText(inputCodigoPix.value);
+        } catch {
+            inputCodigoPix.select();
+            document.execCommand('copy');
+        }
+        msgCopiadoPix.classList.remove('oculto');
     });
  
     btnConfirmar.addEventListener('click', async function (event) {

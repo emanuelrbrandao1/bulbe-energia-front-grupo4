@@ -25,17 +25,60 @@
 
     .d_entregas,
     .d_pagamentos,
-    .credito {
+    .credito,
+    .pix {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
-        gap: 8px; 
-        width: 90%; 
-        border-radius: 8px; 
+        gap: 8px;
+        width: 90%;
+        border-radius: 8px;
     }
     .credito{
         margin-top: 30px;
+        display: none;
+    }
+    .pix {
+        margin-top: 30px;
+        display: none;
+        align-items: center;
+    }
+    .qrcode-pix {
+        width: 200px;
+        height: 200px;
+        border-radius: 8px;
+        border: 1px solid var(--C100);
+    }
+    .copia_pix {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+    .copia_pix #codigo_pix {
+        font-size: 12px;
+        color: var(--C600);
+    }
+    .btn-copiar {
+        background-color: var(--AU700);
+        color: var(--branco);
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 140%;
+        letter-spacing: 0.02em;
+        padding: 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+    }
+    .msg-copiado {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--S700);
+    }
+    .msg-copiado.oculto {
         display: none;
     }
     .b_confirmar {
