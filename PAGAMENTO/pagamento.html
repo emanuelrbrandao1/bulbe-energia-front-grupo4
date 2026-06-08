@@ -54,6 +54,16 @@
             <label for="entrega">Cód. Segurança<span class="obrigatorio">*</span></label>
             <input type="number" name="" class="num_cc" id="cod_seg" placeholder="000">
         </form>
+        <div class="pix">
+            <p class="fontep">Escaneie o QR Code abaixo com o app do seu banco ou copie o código Pix.</p>
+            <img src="../assets/images/qrcode-pix-exemplo.svg" alt="QR Code para pagamento via Pix" class="qrcode-pix">
+            <label for="codigo_pix">Código Pix Copia e Cola</label>
+            <div class="copia_pix">
+                <input type="text" id="codigo_pix" class="num_cc" readonly value="00020126580014BR.GOV.BCB.PIX0136exemplo-chave-pix-bulbe@energia.com5204000053039865802BR5913Bulbe Energia6009Sao Paulo62070503***6304ABCD">
+                <button type="button" id="btn-copiar-pix" class="btn-copiar">Copiar código</button>
+            </div>
+            <p id="msg-copiado-pix" class="msg-copiado oculto">Código copiado!</p>
+        </div>
         <p id="msg-erro" class="msg-erro" style="display:none;"></p>
         <button class="b_confirmar" id="btn-confirmar">Confirmar Pagamento</button>
         <a href="../CARRINHO/carrinho.html" class="voltar">Voltar para o Carrinho</a>
